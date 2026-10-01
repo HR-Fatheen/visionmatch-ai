@@ -12,6 +12,7 @@ from app.services.image_processing_job_service import (
 )
 from app.services.vision_provider import VisionProvider
 
+
 def process_job(
     db: Session,
     job: ImageProcessingJob,
@@ -60,11 +61,6 @@ def process_job(
 
         raise
 
-    from app.services.image_processing_job_service import (
-    can_retry,
-    retry_job,
-)
-
 
 def process_with_retries(
     db: Session,
@@ -74,6 +70,8 @@ def process_with_retries(
     """
     Process a job and retry failed processing until
     the maximum attempt count is reached.
+
+    Logs an error when the job exhausts all retries.
     """
 
     while True:
@@ -88,6 +86,12 @@ def process_with_retries(
             db.refresh(job)
 
             if not can_retry(job):
+                print(
+                    f"ALERT: Image processing job {job.id} "
+                    f"failed after {job.attempts} attempts. "
+                    f"Error: {job.last_error}"
+                )
+
                 return job
 
             job = retry_job(
