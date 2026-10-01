@@ -1,0 +1,14 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: image_matching
+    ports:
+      - "5433:5432"
+    volumes:
+      - image_matching_data:/var/lib/postgresql/data
+
+volumes:
+  image_matching_data:
