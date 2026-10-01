@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-
+from app.services.ai_cost_service import estimate_gemini_cost
+from app.services.ai_usage_service import record_ai_usage
 from app.models.image import Image
 from app.models.image_processing_job import ImageProcessingJob
 from app.services.image_service import save_vision_metadata
@@ -38,8 +39,25 @@ def process_job(
                 f"Image {job.image_id} not found"
             )
 
-        metadata = vision_provider.analyze_image(
+        result = vision_provider.analyze_image(
             image.filepath
+        )
+
+        metadata = result.metadata
+
+        if result.usage is not None:
+            estimated_cost = estimate_gemini_cost(
+            input_units=result.usage.input_units,
+            output_units=result.usage.output_units,
+        )
+
+        record_ai_usage(
+            db=db,
+            operation="vision_analysis",
+            model_name=result.usage.model_name,
+            input_units=result.usage.input_units,
+            output_units=result.usage.output_units,
+            estimated_cost=estimated_cost,
         )
 
         save_vision_metadata(

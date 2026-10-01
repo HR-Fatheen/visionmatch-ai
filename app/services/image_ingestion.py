@@ -28,7 +28,9 @@ def ingest_image(
     db.commit()
     db.refresh(image)
 
-    metadata = vision_provider.analyze_image(image_path)
+    result = vision_provider.analyze_image(image_path)
+
+    metadata = result.metadata
 
     low_confidence = is_low_confidence(metadata)
 
