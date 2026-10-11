@@ -5,6 +5,7 @@ from decimal import Decimal
 # Values are USD per 1 million tokens.
 INPUT_COST_PER_MILLION = Decimal("0.30")
 OUTPUT_COST_PER_MILLION = Decimal("2.50")
+EMBEDDING_INPUT_COST_PER_MILLION = Decimal("0.20")
 
 
 def estimate_gemini_cost(
@@ -24,3 +25,12 @@ def estimate_gemini_cost(
     )
 
     return float(input_cost + output_cost)
+
+def estimate_embedding_cost(input_units: int) -> float:
+    input_cost = (
+        Decimal(input_units)
+        / Decimal(1_000_000)
+        * EMBEDDING_INPUT_COST_PER_MILLION
+    )
+
+    return float(input_cost)

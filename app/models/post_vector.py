@@ -15,6 +15,6 @@ class PostVector(Base):
         unique=True,
     )
     embedding: Mapped[list[float]] = mapped_column(
-        Vector(768),
+        Vector(3072),
         nullable=False,
     )
