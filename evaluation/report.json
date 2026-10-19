@@ -1,0 +1,121 @@
+{
+  "candidates_evaluated": 9,
+  "correct_decisions": 9,
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "false_accepts": 0,
+  "false_rejects": 0,
+  "true_positives": 4,
+  "true_negatives": 5,
+  "cases": [
+    {
+      "case_id": "fox_wildlife_001",
+      "candidates": [
+        {
+          "image_key": "red_fox",
+          "expected": true,
+          "actual": true,
+          "similarity": 0.95,
+          "confidence": 0.94,
+          "correct": true,
+          "explanation": "Accepted because semantic similarity, vision confidence, and required content tags all meet the matching criteria."
+        },
+        {
+          "image_key": "gray_wolf",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.15,
+          "confidence": 0.92,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
+        }
+      ]
+    },
+    {
+      "case_id": "wolf_wildlife_002",
+      "candidates": [
+        {
+          "image_key": "gray_wolf",
+          "expected": true,
+          "actual": true,
+          "similarity": 0.94,
+          "confidence": 0.92,
+          "correct": true,
+          "explanation": "Accepted because semantic similarity, vision confidence, and required content tags all meet the matching criteria."
+        },
+        {
+          "image_key": "red_fox",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.12,
+          "confidence": 0.94,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
+        }
+      ]
+    },
+    {
+      "case_id": "technology_education_003",
+      "candidates": [
+        {
+          "image_key": "ai_classroom",
+          "expected": true,
+          "actual": true,
+          "similarity": 0.96,
+          "confidence": 0.96,
+          "correct": true,
+          "explanation": "Accepted because semantic similarity, vision confidence, and required content tags all meet the matching criteria."
+        },
+        {
+          "image_key": "red_fox",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.08,
+          "confidence": 0.94,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
+        }
+      ]
+    },
+    {
+      "case_id": "food_cooking_004",
+      "candidates": [
+        {
+          "image_key": "homemade_pizza",
+          "expected": true,
+          "actual": true,
+          "similarity": 0.95,
+          "confidence": 0.95,
+          "correct": true,
+          "explanation": "Accepted because semantic similarity, vision confidence, and required content tags all meet the matching criteria."
+        },
+        {
+          "image_key": "gray_wolf",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.06,
+          "confidence": 0.92,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
+        }
+      ]
+    },
+    {
+      "case_id": "low_confidence_005",
+      "candidates": [
+        {
+          "image_key": "uncertain_fox",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.85,
+          "confidence": 0.5,
+          "correct": true,
+          "explanation": "Rejected because vision confidence is below the required threshold."
+        }
+      ]
+    }
+  ],
+  "note": "Metrics reflect the supplied dataset and its similarity scores; synthetic scores do not measure real model performance."
+}
