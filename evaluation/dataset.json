@@ -1,0 +1,175 @@
+[
+  {
+    "case_id": "fox_wildlife_001",
+    "description": "A wildlife article about a red fox.",
+    "post_text": "A red fox standing in a forest, displaying its reddish fur and bushy tail.",
+    "required_tags": [
+      "fox",
+      "wildlife"
+    ],
+    "candidate_images": [
+      {
+        "image_key": "red_fox",
+        "description": "A red fox standing in a forest.",
+        "tags": [
+          "fox",
+          "wildlife",
+          "animal"
+        ],
+        "confidence": 0.94,
+        "is_relevant": true,
+        "should_be_accepted": true,
+        "similarity": 0.95
+      },
+      {
+        "image_key": "gray_wolf",
+        "description": "A gray wolf standing in a snowy landscape.",
+        "tags": [
+          "wolf",
+          "wildlife",
+          "animal"
+        ],
+        "confidence": 0.92,
+        "is_relevant": false,
+        "should_be_accepted": false,
+        "similarity": 0.15
+      }
+    ]
+  },
+  {
+    "case_id": "wolf_wildlife_002",
+    "description": "A wildlife article about a gray wolf.",
+    "post_text": "A gray wolf moving through a snowy forest.",
+    "required_tags": [
+      "wolf",
+      "wildlife"
+    ],
+    "candidate_images": [
+      {
+        "image_key": "gray_wolf",
+        "description": "A gray wolf standing in a snowy landscape.",
+        "tags": [
+          "wolf",
+          "wildlife",
+          "animal"
+        ],
+        "confidence": 0.92,
+        "is_relevant": true,
+        "should_be_accepted": true,
+        "similarity": 0.94
+      },
+      {
+        "image_key": "red_fox",
+        "description": "A red fox standing in a forest.",
+        "tags": [
+          "fox",
+          "wildlife",
+          "animal"
+        ],
+        "confidence": 0.94,
+        "is_relevant": false,
+        "should_be_accepted": false,
+        "similarity": 0.12
+      }
+    ]
+  },
+  {
+    "case_id": "technology_education_003",
+    "description": "An educational article about artificial intelligence.",
+    "post_text": "An introduction to artificial intelligence and machine learning in education.",
+    "required_tags": [
+      "artificial intelligence",
+      "education"
+    ],
+    "candidate_images": [
+      {
+        "image_key": "ai_classroom",
+        "description": "Students learning artificial intelligence in a computer laboratory.",
+        "tags": [
+          "artificial intelligence",
+          "education",
+          "technology"
+        ],
+        "confidence": 0.96,
+        "is_relevant": true,
+        "should_be_accepted": true,
+        "similarity": 0.96
+      },
+      {
+        "image_key": "red_fox",
+        "description": "A red fox standing in a forest.",
+        "tags": [
+          "fox",
+          "wildlife",
+          "animal"
+        ],
+        "confidence": 0.94,
+        "is_relevant": false,
+        "should_be_accepted": false,
+        "similarity": 0.08
+      }
+    ]
+  },
+  {
+    "case_id": "food_cooking_004",
+    "description": "A cooking article about homemade pizza.",
+    "post_text": "A homemade pizza topped with tomatoes, cheese, and fresh basil.",
+    "required_tags": [
+      "pizza",
+      "food"
+    ],
+    "candidate_images": [
+      {
+        "image_key": "homemade_pizza",
+        "description": "A freshly baked pizza topped with tomatoes, cheese, and basil.",
+        "tags": [
+          "pizza",
+          "food",
+          "cooking"
+        ],
+        "confidence": 0.95,
+        "is_relevant": true,
+        "should_be_accepted": true,
+        "similarity": 0.95
+      },
+      {
+        "image_key": "gray_wolf",
+        "description": "A gray wolf standing in a snowy landscape.",
+        "tags": [
+          "wolf",
+          "wildlife",
+          "animal"
+        ],
+        "confidence": 0.92,
+        "is_relevant": false,
+        "should_be_accepted": false,
+        "similarity": 0.06
+      }
+    ]
+  },
+  {
+    "case_id": "low_confidence_005",
+    "description": "A relevant-looking candidate should be rejected because its vision confidence is too low.",
+    "post_text": "A red fox in a woodland environment.",
+    "required_tags": [
+      "fox",
+      "wildlife"
+    ],
+    "candidate_images": [
+      {
+        "image_key": "uncertain_fox",
+        "description": "A possible red fox in a woodland environment.",
+        "tags": [
+          "fox",
+          "wildlife",
+          "animal"
+        ],
+        "confidence": 0.5,
+        "is_relevant": true,
+        "should_be_accepted": false,
+        "reason": "Low vision confidence",
+        "similarity": 0.85
+      }
+    ]
+  }
+]
