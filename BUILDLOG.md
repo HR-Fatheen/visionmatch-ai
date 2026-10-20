@@ -95,22 +95,19 @@ The design documentation describes the broader intended image-matching functiona
 
 ## 5. Automated Testing
 
-The automated test suite was executed using:
+The default test suite was executed using:
 
-`python -m pytest -v`
+`python -m pytest -q`
 
-### Previously Recorded Result
+### Latest Result
 
 | Metric | Result |
 |---|---:|
-| Tests passed | 18 |
+| Tests passed | 15 |
 | Tests failed | 0 |
-| Total tests | 18 |
 | Status | PASS |
 
-These results were recorded from a previous successful test run. They are not a claim that the tests were executed again while preparing this build log.
-
----
+The default pytest configuration excludes `tests/integration`. The integration tests were not verified in the latest run because a live Gemini API request encountered a quota error.
 
 ## 6. Evaluation Implementation
 
@@ -130,12 +127,13 @@ The evaluation was run using:
 
 `python -m evaluation.evaluate`
 
-### Previously Recorded Results
+### Latest Recorded Results
 
 | Metric | Result |
 |---|---:|
-| Candidates evaluated | 9 |
-| Correct decisions | 9 |
+| Evaluation cases | 10 |
+| Candidates evaluated | 19 |
+| Correct decisions | 19 |
 | Accuracy | 100% |
 | Precision | 100% |
 | Recall | 100% |
@@ -145,13 +143,9 @@ The evaluation was run using:
 
 ### Evaluation Scope
 
-The available dataset contains five evaluation cases and nine candidate decisions.
+The dataset contains ten cases covering wildlife, technology, food, sports, low-confidence rejection, and a no-match scenario.
 
-The cases cover examples involving wildlife, education, food, and rejection of a low-confidence candidate.
-
-The evaluation uses predefined fixture scores. Therefore, the reported metrics describe performance on these supplied test cases rather than independently measured performance on a large real-world dataset.
-
-The current evaluation dataset does not yet demonstrate the design target of at least ten labeled evaluation posts.
+The evaluation uses predefined fixture scores. Therefore, the reported metrics describe performance on these supplied test cases rather than independently measured performance on a real-world dataset.
 
 ---
 
@@ -182,11 +176,11 @@ Defines the application run command, database migration command, test command, b
 The following limitations remain important when assessing the current project state:
 
 1. The currently registered HTTP API contains only the root and health-check endpoints.
-2. The complete target image corpus of at least 40 images across four or more categories has not been verified.
-3. The available evaluation dataset contains five cases rather than the target of at least ten labeled posts.
-4. The evaluation metrics are based on predefined fixture scores and do not establish real-world matching accuracy.
-5. Running database migrations does not seed image or post records.
-6. Background processing, retry behavior, failure alerts, and actual AI provider cost tracking should not be considered verified without implementation evidence.
+2. The evaluation metrics are based on predefined fixture scores and do not establish real-world matching accuracy.
+3. The repository contains 40 downloaded images across four categories, plus one additional test image; the presence of files does not prove that all images have been processed and stored in the database.
+4. Running database migrations does not seed image or post records.
+5. Integration tests were excluded from the latest default test run because the Gemini API quota was exhausted.
+6. Background processing, retry behavior, failure alerts, and actual AI provider cost tracking should not be considered fully verified without implementation evidence.
 
 ---
 

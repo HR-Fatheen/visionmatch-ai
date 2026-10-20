@@ -65,73 +65,47 @@ This applies the available database migrations. It does not, by itself, populate
 
 ## 3. Automated Test Evidence
 
-The project's automated test suite was executed successfully.
+The default automated test suite was executed using:
 
-**Previously recorded result:**
+`python -m pytest -q`
+
+### Latest Result
 
 | Metric | Result |
 |---|---:|
-| Tests passed | 18 |
+| Tests passed | 15 |
 | Tests failed | 0 |
-| Total tests | 18 |
 | Result | PASS |
 
-Command used:
+The pytest configuration excludes `tests/integration` from the default run. Therefore, this result applies to the tests collected by the default configuration, not to the integration tests.
 
-`python -m pytest -v`
-
-**Note:** These results reflect a previous test run. They should not be interpreted as a new test execution performed while preparing this document.
-
----
+The integration tests were not verified in the latest run because a live Gemini API request encountered a `429 RESOURCE_EXHAUSTED` quota error.
 
 ## 4. Evaluation Evidence
 
-The evaluation script was executed successfully using the available evaluation fixtures.
-
-Command used:
+The evaluation script was executed using:
 
 `python -m evaluation.evaluate`
 
-### Recorded Results
+### Latest Recorded Results
 
 | Metric | Result |
 |---|---:|
-| Candidates evaluated | 9 |
-| Correct decisions | 9 |
+| Evaluation cases | 10 |
+| Candidates evaluated | 19 |
+| Correct decisions | 19 |
 | Accuracy | 100% |
 | Precision | 100% |
 | Recall | 100% |
 | F1 score | 100% |
 | False accepts | 0 |
 | False rejects | 0 |
-| True positives | 4 |
-| True negatives | 5 |
 
-### Interpretation
+### Interpretation and Limitations
 
-The evaluation script reported correct decisions for all nine candidate decisions in the supplied evaluation dataset.
+The evaluation dataset covers wildlife, technology, food, sports, low-confidence rejection, and a no-match scenario.
 
-The dataset contains five cases covering examples such as:
-
-- Matching a fox image to wildlife content.
-- Matching a wolf image to wildlife content.
-- Matching a classroom image to AI education content.
-- Matching a pizza image to food-related content.
-- Rejecting a low-confidence candidate.
-
-The evaluation includes both positive and negative candidate decisions.
-
-### Important Limitations
-
-These results represent performance on the supplied evaluation fixtures. They do not establish equivalent performance on a larger, independently labeled, real-world image dataset.
-
-The similarity and confidence scores used by the current evaluation fixtures are predefined test values. Consequently, the reported metrics should not be interpreted as proof of real-world Gemini model accuracy.
-
-The current evaluation dataset contains five cases and nine candidate decisions. The project design target calls for at least ten labeled evaluation posts, so that target should not be considered satisfied by these results alone.
-
-The reported 100% precision is the candidate-level precision calculated by the existing evaluation script. It should not be presented as top-1 image-matching precision across ten or more posts.
-
----
+The similarity and confidence values used by the current evaluation fixtures are predefined test values. The reported metrics describe the decision logic on these supplied fixtures; they do not establish real-world Gemini model accuracy or production retrieval performance.
 
 ## 5. Evaluation Artifacts
 
@@ -169,16 +143,16 @@ The repository includes the following project configuration and documentation fi
 
 The design documentation describes a target image corpus of at least 40 images across at least four categories and an evaluation dataset containing at least ten labeled posts.
 
-The currently confirmed image corpus includes `data/images/gemini-test.jpg`. The complete image-corpus target has not been verified.
+The repository contains 40 downloaded images across four categories, plus an additional `gemini-test.jpg` file. Source and attribution metadata is stored in `data/image_sources.json`.
 
-The following items should therefore not be claimed as completed without additional implementation and evidence:
+The evaluation dataset contains ten cases and 19 candidate decisions. Its metrics are based on predefined fixtures, not an independent real-world retrieval benchmark.
 
-- A verified corpus of at least 40 images across four or more categories.
-- At least ten labeled evaluation posts.
-- Real-world top-1 matching precision measured against the required evaluation dataset.
+The following items should not be claimed as completed without additional implementation and evidence:
+
 - A fully populated database containing the target image and post records.
-- Background processing, retries, and failure alerts, unless demonstrated by the implementation.
-- Cost and usage tracking for actual AI provider calls, unless supported by recorded logs.
+- Real-world top-1 matching precision measured against independently labeled data.
+- Background processing, retries, and failure alerts beyond the behavior demonstrated by tests.
+- Cost and usage tracking for actual AI provider calls, supported by recorded logs.
 - Image-matching functionality exposed through HTTP endpoints that are not registered in the current FastAPI application.
 
 This section distinguishes the functionality and results already confirmed from the broader project targets described in the design.
@@ -197,5 +171,8 @@ The following evidence has been recorded:
 - The evaluation script previously reported nine correct candidate decisions out of nine.
 - Evaluation artifacts are present in the project structure.
 - Project documentation identifies the current evaluation and dataset limitations.
+- The default test suite passed 15 tests; integration tests were excluded from the latest run.
+- The evaluation script reported 19 correct candidate decisions out of 19 on the supplied fixtures.
+- The repository contains 40 downloaded images across four categories, with source metadata recorded in `data/image_sources.json`.
 
 The recorded test and evaluation results are limited to the implementation and fixtures available at the time of those runs. They do not independently verify every requirement in the original capstone brief.

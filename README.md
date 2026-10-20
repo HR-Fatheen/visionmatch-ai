@@ -1,122 +1,218 @@
-# VisionMatch AI
+# VisionMatch AI — AI Image Understanding & Content Matching Engine
 
-## AI Image Understanding & Content Matching Engine
+VisionMatch AI is a Python backend project designed to analyze images, generate semantic embeddings, and match images with relevant content. It combines AI-powered image understanding, vector similarity search, mismatch detection, background processing, review records, and AI usage and cost estimation.
 
-VisionMatch AI is a backend capstone project that explores AI-assisted image understanding and semantic image-to-content matching.
+The project is built as a capstone for the Flyrank AI Backend Engineering track.
 
-The system is designed to extract structured metadata from images, generate embeddings for images and blog posts, rank potential matches, and reject unsuitable recommendations when confidence or relevance is insufficient.
+## 1. Project Overview
 
-## 1. Architecture
+The goal of VisionMatch AI is to recommend relevant images for written content while avoiding incorrect matches.
 
-```text
-Image
-  |
-  v
-Image Processing Worker
-  |
-  v
-Vision Provider (Gemini or Mock)
-  |
-  v
-Validated Image Metadata
-  |
-  v
-Image Embeddings
-  |
-  v
-PostgreSQL + pgvector
-  ^
-  |
-Blog Post -> Post Embedding
-  |
-  v
-Semantic Candidate Ranking
-  |
-  v
-Mismatch Guard
-  |
-  +----------------------+
-  |                      |
-  v                      v
-Accept Candidate    Reject Candidate
-                    with Explanation
-```
+For example, when matching images to an article about red foxes, the system should rank relevant fox images above unrelated wildlife images. It should also reject an unsuitable candidate, such as a wolf image, when the required subject is a fox.
 
-Supporting services handle embedding generation, match results, reviews, AI usage tracking, and estimated AI costs.
+### Key Features
+
+* Image ingestion and metadata persistence.
+* AI-powered image understanding using a vision provider.
+* Structured image metadata, including captions, tags, and confidence.
+* Text and image embedding service abstractions.
+* Vector persistence and semantic similarity search.
+* Similarity, confidence, and tag-based mismatch checks.
+* Explanations for accepted and rejected match candidates.
+* Image processing jobs with retry and failure handling.
+* AI usage tracking and estimated cost calculation.
+* Review records for approved or rejected matches.
+* Evaluation dataset and report.
+* Automated tests for important application behavior.
+
+> **Implementation status:** The project contains services for image processing, embeddings, matching, and review workflows. However, the currently registered HTTP API exposes only the root and health endpoints. The complete matching workflow should not be considered available through HTTP until the necessary API routes are implemented and verified.
 
 ## 2. Technology Stack
 
-* **Programming Language:** Python
-* **Web Framework:** FastAPI
-* **Database ORM:** SQLAlchemy
-* **Database:** PostgreSQL
-* **Vector Search:** pgvector
-* **Database Migrations:** Alembic
-* **AI Integration:** Google Gemini
-* **Testing Framework:** pytest
-* **Environment Configuration:** python-dotenv
-* **Containerization:** Docker Compose
+| Technology                 | Purpose                              |
+| -------------------------- | ------------------------------------ |
+| Python                     | Primary programming language         |
+| FastAPI                    | HTTP application framework           |
+| SQLAlchemy                 | Database ORM                         |
+| PostgreSQL                 | Relational database                  |
+| pgvector                   | Vector storage and similarity search |
+| Alembic                    | Database migrations                  |
+| Pytest                     | Automated testing                    |
+| Uvicorn                    | ASGI application server              |
+| Google Gemini              | AI vision and embedding integration  |
+| Python virtual environment | Isolated development dependencies    |
 
-## 3. Project Structure
+## 3. Architecture
+
+The project separates database models, application services, AI provider integrations, and background processing.
+
+```text
+                     VisionMatch AI
+                           |
+          +----------------+----------------+
+          |                                 |
+          v                                 v
+    Image Ingestion                    Post Content
+          |                                 |
+          v                                 v
+     Image Record                   Text Embedding Service
+          |
+          v
+   Image Processing Job
+          |
+          v
+      Vision Provider
+          |
+          v
+  Caption, Tags, Confidence
+          |
+          +-----------------------+
+          |                       |
+          v                       v
+   Metadata Persistence    Image Embedding Service
+                                  |
+                                  v
+                         Image Vector Persistence
+
+       Post Vector + Image Vectors
+                  |
+                  v
+         Similarity Search
+                  |
+                  v
+            Mismatch Guard
+      (Similarity + Confidence + Tags)
+                  |
+          +-------+-------+
+          |               |
+          v               v
+    Accepted Match    Rejected Match
+          |               |
+          +-------+-------+
+                  |
+                  v
+       Match Result and Explanation
+                  |
+                  v
+            Review Service
+
+     AI Usage and Estimated Cost Tracking
+```
+
+### Main Processing Flow
+
+1. An image is registered in the database.
+2. An image processing job runs the vision analysis.
+3. The vision provider returns image information such as a caption, tags, and confidence.
+4. The generated metadata is saved.
+5. Image and post embeddings can be generated and persisted through their respective services.
+6. The matching service retrieves semantically similar image candidates.
+7. The mismatch guard evaluates similarity, confidence, and required tags.
+8. Match decisions and explanations can be persisted.
+9. Review records can capture approval or rejection.
+10. AI usage and estimated costs are recorded when usage information is available.
+
+The diagram describes the intended service-level workflow. It does not imply that every step is exposed through a registered HTTP endpoint or has been verified end to end against a live AI provider.
+
+## 4. Project Structure
+
+The main project components include:
 
 ```text
 flyrank-capstone-image-relevance/
+│
 ├── app/
 │   ├── main.py
 │   ├── database.py
+│   │
 │   ├── models/
+│   │
 │   ├── services/
+│   │   ├── ai_cost_service.py
+│   │   ├── ai_usage_service.py
+│   │   ├── embedding_service.py
+│   │   ├── image_embedding_service.py
+│   │   ├── image_ingestion.py
+│   │   ├── image_processing_job_service.py
+│   │   ├── matching_pipeline_service.py
+│   │   ├── matching_service.py
+│   │   ├── mismatch_guard.py
+│   │   ├── post_embedding_service.py
+│   │   ├── post_matching_service.py
+│   │   ├── review_service.py
+│   │   └── vector_service.py
+│   │
 │   └── workers/
+│       └── image_processing_worker.py
+│
 ├── data/
-│   └── images/
-├── docs/
-│   └── DESIGN.md
+│   ├── images/
+│   │   ├── food/
+│   │   ├── sports/
+│   │   ├── technology/
+│   │   ├── wildlife/
+│   │   └── gemini-test.jpg
+│   └── image_sources.json
+│
 ├── evaluation/
 │   ├── dataset.json
-│   ├── evaluate.py
-│   └── report.json
-├── migrations/
+│   ├── report.json
+│   └── evaluate.py
+│
+├── scripts_download_images.py
+├── scripts_expand_evaluation.py
 ├── tests/
-├── compose.yaml
+├── alembic/
+├── alembic.ini
+├── capstone.yaml
+├── pytest.ini
 ├── requirements.txt
 ├── .env.example
+├── .gitignore
 ├── README.md
-├── capstone.yaml
 ├── EVIDENCE.md
 └── BUILDLOG.md
 ```
 
-## 4. Prerequisites
+The structure above summarizes the principal project components. Individual files and folders may vary as development continues.
 
-Before running the project, ensure the following are installed:
+## 5. Setup and Installation
 
-* Python 3.12
-* Docker Desktop with Docker Compose
-* Git
-* A Google Gemini API key for live Gemini operations
+### Prerequisites
 
-## 5. Installation and Setup
+Install the following:
 
-Run the following commands in PowerShell from the project root directory.
+* Python compatible with the project's dependencies.
+* Git.
+* Docker Desktop, if using the provided Docker Compose database configuration.
+* A Google Gemini API key for operations that call Gemini.
 
-### Step 1: Create a Virtual Environment
+### Step 1: Clone the Repository
+
+```powershell
+git clone https://github.com/HR-Fatheen/visionmatch-ai.git
+cd visionmatch-ai
+```
+
+### Step 2: Create a Virtual Environment
+
+On Windows PowerShell:
 
 ```powershell
 python -m venv .venv
 ```
 
-### Step 2: Activate the Virtual Environment
+Activate it:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-If the virtual environment already exists and is activated, you can skip these two steps.
-
 ### Step 3: Install Dependencies
 
 ```powershell
-python -m pip install -r requirements.txt
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
 ### Step 4: Configure Environment Variables
@@ -127,190 +223,336 @@ Create a local `.env` file from the example:
 Copy-Item .env.example .env
 ```
 
-If `.env` already exists, do not overwrite it. Open the existing file instead.
+Update `.env` with the appropriate local database settings and AI provider credentials.
 
-Configure the database connection and Gemini API key in `.env`.
+**Important:** Replace placeholder values with your own configuration. Never commit `.env` or publish API keys, passwords, or other secrets.
 
-Example configuration:
+### Step 5: Start the Database
 
-```dotenv
-DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5433/image_matching
-GEMINI_API_KEY=
-```
-
-Replace the empty `GEMINI_API_KEY` value with your actual API key when live Gemini operations are required.
-
-**Security Note:** Never commit your `.env` file or expose API keys, passwords, or other credentials in the repository.
-
-### Step 5: Start PostgreSQL with pgvector
+If using the project's Docker Compose configuration, start its configured services:
 
 ```powershell
-docker compose up -d db
+docker compose up -d
 ```
 
-The database is exposed on localhost port `5433`.
+Check the database container status:
+
+```powershell
+docker compose ps
+```
+
+Confirm that the database connection settings in `.env` match the configuration used by Docker Compose.
 
 ### Step 6: Apply Database Migrations
+
+After the database is running and the environment variables are configured, execute:
 
 ```powershell
 alembic upgrade head
 ```
 
-### Step 7: Start the FastAPI Application
+This applies the database migrations. It does not automatically populate the database with the image corpus or create a complete set of image and post embeddings.
+
+### Step 7: Run the Application
 
 ```powershell
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-The development server normally runs at:
+The application should be available locally at:
 
-`http://127.0.0.1:8000`
+```text
+http://127.0.0.1:8000
+```
 
-## 6. Currently Exposed HTTP Endpoints
+## 6. Available HTTP Endpoints
 
-The following endpoints are currently registered in the FastAPI application.
+The currently registered HTTP endpoints are:
 
-| HTTP Method | Endpoint  | Description                                      |
-| ----------- | --------- | ------------------------------------------------ |
-| GET         | `/`       | Returns the application name and running status. |
-| GET         | `/health` | Returns a basic health status response.          |
+| Method | Endpoint  | Purpose                                            |
+| ------ | --------- | -------------------------------------------------- |
+| GET    | `/`       | Returns application information and running status |
+| GET    | `/health` | Returns a health status response                   |
 
-Interactive API documentation is normally available at:
+### Root Endpoint
 
-`http://127.0.0.1:8000/docs`
+Request:
 
-**Important:** Image processing, post matching, jobs, and reviews are part of the broader project design. Their presence in models, services, or documentation does not mean corresponding HTTP endpoints are currently exposed. Refer to `docs/DESIGN.md` for the intended broader API design.
+```http
+GET /
+```
 
-## 7. Evaluation
+Expected response:
+
+```json
+{
+  "name": "AI Image Understanding & Content Matching Engine",
+  "status": "running"
+}
+```
+
+### Health Endpoint
+
+Request:
+
+```http
+GET /health
+```
+
+Expected response:
+
+```json
+{
+  "status": "healthy"
+}
+```
+
+These endpoints provide basic application status. They do not prove that the database, Gemini API, background jobs, or complete matching workflow are operational.
+
+The image ingestion, matching, and review services are not currently exposed through additional registered HTTP routes.
+
+## 7. Image Dataset
+
+The project includes a local image corpus intended to support development and evaluation.
+
+### Dataset Summary
+
+| Category                     | Downloaded Images |
+| ---------------------------- | ----------------: |
+| Food                         |                10 |
+| Sports                       |                10 |
+| Technology                   |                10 |
+| Wildlife                     |                10 |
+| **Total categorized images** |            **40** |
+
+An additional image, `gemini-test.jpg`, is included for testing.
+
+This gives the project **40 categorized downloaded images across four categories, plus one additional test image**.
+
+### Dataset Locations
+
+```text
+data/
+├── images/
+│   ├── food/
+│   ├── sports/
+│   ├── technology/
+│   ├── wildlife/
+│   └── gemini-test.jpg
+└── image_sources.json
+```
+
+The `data/image_sources.json` file records source and attribution information for the downloaded images.
+
+### Important Distinction
+
+Having image files in the repository does not mean they have all been inserted into the database, analyzed by Gemini, assigned schema-validated metadata, or embedded into the vector database.
+
+Those processing steps must be executed and verified separately.
+
+## 8. Evaluation
 
 The evaluation dataset is located at:
 
-`evaluation/dataset.json`
+```text
+evaluation/dataset.json
+```
 
-Run the evaluation using:
+The generated evaluation report is located at:
+
+```text
+evaluation/report.json
+```
+
+### Run the Evaluation
+
+With the virtual environment activated, execute:
 
 ```powershell
 python -m evaluation.evaluate
 ```
 
-The evaluator writes the results to:
-
-`evaluation/report.json`
+The script evaluates the cases defined in the evaluation dataset and saves a report.
 
 ### Current Evaluation Results
 
-The latest recorded evaluation produced the following results:
+The latest recorded evaluation output contains:
 
 | Metric                        | Result |
 | ----------------------------- | -----: |
-| Candidate Decisions Evaluated |      9 |
-| Correct Decisions             |      9 |
+| Evaluation cases              |     10 |
+| Candidate decisions           |     19 |
+| Correct candidate decisions   |     19 |
+| Incorrect candidate decisions |      0 |
 | Accuracy                      |   100% |
 | Precision                     |   100% |
 | Recall                        |   100% |
-| F1 Score                      |   100% |
-| False Accepts                 |      0 |
-| False Rejects                 |      0 |
+| F1 score                      |   100% |
+| False accepts                 |      0 |
+| False rejects                 |      0 |
 
-### Evaluation Dataset
+The evaluation includes cases covering:
 
-The current evaluation dataset contains five cases and nine candidate decisions. It covers examples involving foxes, wolves, educational content, pizza, and low-confidence rejection.
+* Fox-related wildlife content.
+* Wolf-related mismatch rejection.
+* Technology and education.
+* Food and cooking.
+* Low-confidence results.
+* Sports content.
+* Robotics.
+* Pasta-related content.
+* Eagle-related wildlife content.
+* Content with no suitable match.
 
-The evaluation uses supplied similarity and confidence values as fixtures. Therefore, the results demonstrate the mismatch-guard decisions on the current test cases rather than real-world AI retrieval performance.
+### Interpreting the Results
 
-The current dataset does not yet meet the design target of at least ten labeled posts.
+**The reported 100% scores are results from the current evaluation fixtures, not proof of 100% real-world AI matching accuracy.**
 
-The reported metrics should be interpreted within the limits of the dataset and should not be treated as proof of production-level matching accuracy.
+The evaluation uses predefined similarity, confidence, and candidate-decision values. These fixtures are useful for checking decision logic, expected acceptance and rejection behavior, and evaluation-report generation.
 
-## 8. Running Tests
+They do not establish that Gemini-generated embeddings or a live database retrieval pipeline will achieve the same performance on unseen images.
 
-Run the complete test suite using:
+The 19 candidate decisions should also not be confused with 19 independent evaluation posts or a verified production top-1 precision measurement.
+
+A stronger end-to-end evaluation would require processing the image corpus, generating real embeddings, running actual similarity searches, and comparing ranked results against independently labeled ground truth.
+
+## 9. Automated Tests
+
+The project uses Pytest.
+
+### Run the Default Test Suite
 
 ```powershell
 python -m pytest -v
 ```
 
-The previously completed test run passed all 18 tests.
+The repository's default `pytest.ini` configuration excludes the integration tests under `tests/integration`, because those tests may make live external API calls.
 
-The existing successful test results are documented here for reference. A README documentation update alone does not require rerunning the test suite.
+### Latest Recorded Test Result
 
-## 9. Database Migrations
-
-Database migration configuration is maintained through Alembic.
-
-The migration configuration is located in:
-
-* `alembic.ini`
-* `migrations/`
-
-To apply available migrations, run:
-
-```powershell
-alembic upgrade head
+```text
+15 passed
 ```
 
-## 10. Environment Variables
+The latest recorded default test run completed with **15 passed and 0 failed**.
 
-The project uses environment variables to configure database access and external AI services.
+The tests include checks for application logic and worker behavior, including handling a vision provider response that does not contain usage metrics.
 
-| Variable         | Purpose                                          |
-| ---------------- | ------------------------------------------------ |
-| `DATABASE_URL`   | Configures the PostgreSQL database connection.   |
-| `GEMINI_API_KEY` | Provides credentials for live Gemini operations. |
+### Integration Tests
 
-The `.env.example` file contains the example configuration.
+Integration tests that call Gemini or depend on external services must be executed separately when the required credentials, database configuration, and provider quota are available.
 
-Create and maintain a local `.env` file for actual credentials. Do not publish secrets in source control.
+A previous integration test run encountered a Gemini API `429 RESOURCE_EXHAUSTED` response because the free-tier quota had been exhausted.
 
-## 11. Design Documentation
+Consequently:
 
-The file `docs/DESIGN.md` describes the intended system architecture, data model, workflows, and broader API design.
+* The default test suite passed.
+* The excluded integration tests are not represented by that passing result.
+* The latest live Gemini integration behavior has not been fully verified after the quota error.
+* A passing default test suite does not establish that all external integrations work.
 
-The design covers the following areas:
+## 10. AI Usage and Cost Tracking
 
-* Image metadata processing
-* Image and post embeddings
-* Semantic candidate ranking
-* Match decisions and mismatch rejection
-* Database-backed data models
-* AI usage and estimated cost tracking
-* Reviews and supporting workflows
+The project contains services for estimating AI operation costs and recording usage information.
 
-The design document describes the intended broader system. It should not be interpreted as confirmation that every planned feature is fully implemented or available through an HTTP endpoint.
+Relevant components include:
 
-## 12. Current Limitations
+```text
+app/services/ai_cost_service.py
+app/services/ai_usage_service.py
+app/services/embedding_service.py
+app/services/image_embedding_service.py
+app/workers/image_processing_worker.py
+```
 
-The current implementation has the following limitations:
+The implementation includes cost estimation for AI operations and usage-record persistence.
 
-1. The FastAPI application currently exposes only the root and health endpoints.
-2. The labeled evaluation dataset contains five cases, below the target of ten or more labeled posts.
-3. The current evaluation uses supplied similarity and confidence values rather than measuring complete live-model retrieval performance.
-4. Live Gemini operations require valid credentials and appropriate provider access.
-5. The design document includes a broader planned API surface than the endpoints currently registered in the FastAPI application.
-6. The current evaluation results apply only to the supplied dataset and should not be generalized to production performance.
-7. The project should not be considered to have met every capstone acceptance requirement solely because its existing tests pass.
+The image processing worker has also been updated to handle cases where the vision provider returns no usage information. In such cases, it avoids attempting to record usage from missing metrics.
 
-## 13. Future Improvements
+### Cost Tracking Limitations
 
-Potential improvements include:
+* Estimated costs are not necessarily identical to actual provider billing.
+* If a provider does not return usage information, the corresponding usage record may not be created.
+* Complete cost attribution across all vision and embedding calls must be verified using actual processing logs and database records.
+* Live embedding and vision operations depend on provider credentials, quota, and model availability.
 
-* Implementing and exposing the remaining API endpoints.
-* Expanding the image corpus across the required categories.
-* Creating a labeled evaluation dataset containing at least ten posts.
-* Evaluating actual embedding-based retrieval performance.
-* Adding stronger integration tests for database-backed workflows.
-* Verifying background-job retry and failure-handling behavior.
-* Verifying AI usage logging and cost-budget enforcement.
-* Capturing evidence for each capstone acceptance probe.
+## 11. Background Processing and Failure Handling
 
-These are improvement areas and should not be interpreted as features already completed.
+The project includes an image processing job service and a worker.
 
-## 14. Running the Project: Quick Reference
+The job service supports states such as pending, processing, completed, and failed.
 
-Start the database:
+The implementation includes:
+
+* Tracking processing attempts.
+* Restricting retries according to the configured attempt limit.
+* Recording failure information.
+* Clearing error information when a job is retried or completed.
+* Handling exceptions during processing.
+* Preserving failure information for diagnosis.
+
+The configured maximum attempt count is three.
+
+### Verification Status
+
+Worker logic and regression tests exist, and retry behavior has been exercised in earlier integration checks.
+
+However, the latest default test result does not independently verify every background processing scenario. Full verification should include actual database records, job status transitions, retry counts, failure logs, and successful processing of the local corpus.
+
+## 12. Limitations and Future Improvements
+
+VisionMatch AI contains core service-level components, but further work is required before the complete workflow can be treated as a production-ready application.
+
+### Current Limitations
+
+1. **Limited HTTP API:** Only the root and health endpoints are currently registered. Image ingestion, matching, and review workflows are not exposed through additional HTTP routes.
+
+2. **Fixture-based evaluation:** The current evaluation scores are based on predefined test values. They do not establish real-world image retrieval accuracy.
+
+3. **Database population:** The downloaded image corpus is present locally, but this alone does not prove that every image has been ingested, analyzed, and embedded in the database.
+
+4. **External API dependency:** Gemini operations require valid credentials and available provider quota. The most recent integration run encountered a quota-related `429 RESOURCE_EXHAUSTED` response.
+
+5. **Integration test coverage:** The default test configuration excludes integration tests that may call external services. Those tests require separate execution.
+
+6. **End-to-end matching verification:** Real image embeddings, vector retrieval, ranking, mismatch rejection, and review workflows require additional end-to-end evidence.
+
+7. **Cost verification:** Cost estimation code exists, but complete cost attribution for every actual AI call still needs verification.
+
+8. **Production readiness:** The project should not be considered production-ready solely because the default tests pass or the evaluation fixtures report 100%.
+
+### Future Improvements
+
+* Add validated HTTP routes for image ingestion, matching, and review operations.
+* Populate the database with the image corpus.
+* Run real image and text embedding generation.
+* Evaluate actual top-ranked image retrieval against independently labeled examples.
+* Verify the fox-versus-wolf mismatch scenario using real retrieval results.
+* Verify low-confidence handling with actual provider responses.
+* Verify that the system returns no confident match when no candidate satisfies the configured rules.
+* Run integration tests with working credentials and sufficient provider quota.
+* Verify AI usage and cost records for real vision and embedding calls.
+* Add end-to-end tests for the complete image processing and matching pipeline.
+* Document reproducible command output and test evidence.
+
+## 13. Quick Reference
+
+Activate the virtual environment:
 
 ```powershell
-docker compose up -d db
+.\.venv\Scripts\Activate.ps1
+```
+
+Install dependencies:
+
+```powershell
+pip install -r requirements.txt
+```
+
+Start configured Docker Compose services:
+
+```powershell
+docker compose up -d
 ```
 
 Apply migrations:
@@ -319,28 +561,56 @@ Apply migrations:
 alembic upgrade head
 ```
 
-Start the application:
+Run the application:
 
 ```powershell
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Run evaluation:
-
-```powershell
-python -m evaluation.evaluate
-```
-
-Run tests:
+Run the default test suite:
 
 ```powershell
 python -m pytest -v
 ```
 
-Open the API documentation:
+Run the evaluation:
 
-`http://127.0.0.1:8000/docs`
+```powershell
+python -m evaluation.evaluate
+```
 
-## 15. License
+Check the root endpoint:
 
-No license has been specified for this project.
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/
+```
+
+Check the health endpoint:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/health
+```
+
+## 14. Repository
+
+GitHub repository:
+
+https://github.com/HR-Fatheen/visionmatch-ai
+
+The repository includes the application source code, evaluation files, local dataset and attribution metadata, tests, migration configuration, and capstone documentation.
+
+## 15. Final Status Summary
+
+| Area                          | Current Status                                                    |
+| ----------------------------- | ----------------------------------------------------------------- |
+| Core service architecture     | Implemented                                                       |
+| Image dataset                 | 40 categorized images across four categories, plus one test image |
+| Evaluation dataset            | 10 cases                                                          |
+| Fixture-based evaluation      | 19 of 19 candidate decisions correct                              |
+| Default automated tests       | 15 passed                                                         |
+| Gemini integration            | Requires further verification after quota exhaustion              |
+| HTTP API                      | Root and health endpoints only                                    |
+| Real-world retrieval accuracy | Not yet established                                               |
+| Production readiness          | Further implementation and end-to-end verification required       |
+
+VisionMatch AI establishes a foundation for semantic image-to-content matching. The current evaluation and test results provide useful evidence for specific decision logic and application behavior, while additional integration work and real-data validation are needed to demonstrate the complete matching system end to end.

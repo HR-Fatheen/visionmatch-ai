@@ -4,6 +4,7 @@ from app.models.image_processing_job import ImageProcessingJob
 
 
 MAX_ATTEMPTS = 3
+MAX_ERROR_LENGTH = 1000
 
 
 def can_retry(job: ImageProcessingJob) -> bool:
@@ -87,7 +88,7 @@ def mark_failed(
         )
 
     job.status = "failed"
-    job.last_error = error
+    job.last_error = str(error)[:MAX_ERROR_LENGTH]
 
     db.commit()
     db.refresh(job)

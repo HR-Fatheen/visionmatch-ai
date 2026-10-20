@@ -1,14 +1,14 @@
 {
-  "candidates_evaluated": 9,
-  "correct_decisions": 9,
+  "candidates_evaluated": 19,
+  "correct_decisions": 19,
   "accuracy": 1.0,
   "precision": 1.0,
   "recall": 1.0,
   "f1_score": 1.0,
   "false_accepts": 0,
   "false_rejects": 0,
-  "true_positives": 4,
-  "true_negatives": 5,
+  "true_positives": 8,
+  "true_negatives": 11,
   "cases": [
     {
       "case_id": "fox_wildlife_001",
@@ -113,6 +113,121 @@
           "confidence": 0.5,
           "correct": true,
           "explanation": "Rejected because vision confidence is below the required threshold."
+        }
+      ]
+    },
+    {
+      "case_id": "sports_basketball_006",
+      "candidates": [
+        {
+          "image_key": "basketball",
+          "expected": true,
+          "actual": true,
+          "similarity": 0.94,
+          "confidence": 0.95,
+          "correct": true,
+          "explanation": "Accepted because semantic similarity, vision confidence, and required content tags all meet the matching criteria."
+        },
+        {
+          "image_key": "pizza",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.1,
+          "confidence": 0.96,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
+        }
+      ]
+    },
+    {
+      "case_id": "technology_robotics_007",
+      "candidates": [
+        {
+          "image_key": "robot_arm",
+          "expected": true,
+          "actual": true,
+          "similarity": 0.93,
+          "confidence": 0.97,
+          "correct": true,
+          "explanation": "Accepted because semantic similarity, vision confidence, and required content tags all meet the matching criteria."
+        },
+        {
+          "image_key": "red_fox",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.08,
+          "confidence": 0.94,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
+        }
+      ]
+    },
+    {
+      "case_id": "food_pasta_008",
+      "candidates": [
+        {
+          "image_key": "pasta",
+          "expected": true,
+          "actual": true,
+          "similarity": 0.92,
+          "confidence": 0.94,
+          "correct": true,
+          "explanation": "Accepted because semantic similarity, vision confidence, and required content tags all meet the matching criteria."
+        },
+        {
+          "image_key": "gray_wolf",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.07,
+          "confidence": 0.92,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
+        }
+      ]
+    },
+    {
+      "case_id": "wildlife_eagle_009",
+      "candidates": [
+        {
+          "image_key": "eagle",
+          "expected": true,
+          "actual": true,
+          "similarity": 0.94,
+          "confidence": 0.96,
+          "correct": true,
+          "explanation": "Accepted because semantic similarity, vision confidence, and required content tags all meet the matching criteria."
+        },
+        {
+          "image_key": "homemade_pizza",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.05,
+          "confidence": 0.95,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
+        }
+      ]
+    },
+    {
+      "case_id": "no_match_underwater_010",
+      "candidates": [
+        {
+          "image_key": "red_fox",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.09,
+          "confidence": 0.94,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
+        },
+        {
+          "image_key": "basketball",
+          "expected": false,
+          "actual": false,
+          "similarity": 0.06,
+          "confidence": 0.95,
+          "correct": true,
+          "explanation": "Rejected because semantic similarity is below the required threshold."
         }
       ]
     }
