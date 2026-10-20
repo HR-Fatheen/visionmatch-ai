@@ -47,18 +47,18 @@ def process_job(
 
         if result.usage is not None:
             estimated_cost = estimate_gemini_cost(
-            input_units=result.usage.input_units,
-            output_units=result.usage.output_units,
-        )
+                input_units=result.usage.input_units,
+                output_units=result.usage.output_units,
+            )
 
-        record_ai_usage(
-            db=db,
-            operation="vision_analysis",
-            model_name=result.usage.model_name,
-            input_units=result.usage.input_units,
-            output_units=result.usage.output_units,
-            estimated_cost=estimated_cost,
-        )
+            record_ai_usage(
+                db=db,
+                operation="vision_analysis",
+                model_name=result.usage.model_name,
+                input_units=result.usage.input_units,
+                output_units=result.usage.output_units,
+                estimated_cost=estimated_cost,
+            )
 
         save_vision_metadata(
             db=db,
