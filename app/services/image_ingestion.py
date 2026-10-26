@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from sqlalchemy.orm import Session
-
+from app.services.ai_budget_service import ensure_ai_budget_available
 from app.models.image import Image
 from app.services.image_service import save_vision_metadata
 from app.services.vision_provider import VisionProvider
@@ -28,6 +28,7 @@ def ingest_image(
     db.commit()
     db.refresh(image)
 
+    ensure_ai_budget_available(db)
     result = vision_provider.analyze_image(image_path)
 
     metadata = result.metadata

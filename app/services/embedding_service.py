@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-
+from app.services.ai_budget_service import ensure_ai_budget_available
 from app.services.ai_cost_service import estimate_embedding_cost
 from app.services.ai_usage_service import record_ai_usage
 from app.services.embedding_provider import EmbeddingProvider
@@ -10,8 +10,9 @@ def generate_embedding(
     text: str,
     embedding_provider: EmbeddingProvider,
 ):
-    result = embedding_provider.embed_text(text)
+    ensure_ai_budget_available(db)
 
+    result = embedding_provider.embed_text(text)
     estimated_cost = estimate_embedding_cost(
         input_units=result.input_units,
     )
